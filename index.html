@@ -1,40 +1,307 @@
-<!DOCTYPE html>
-<!-- Coding By CodingNepal - www.codingnepalweb.com -->
-<html>
+<!-- <!DOCTYPE html>
+<html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Form </title>
+  <title>Contact Management System</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <div class="wrapper">
-    <form action="#">
-      <h2>Login</h2>
-        <div class="input-field">
-        <input type="text" required>
-        <label>Enter your email</label>
-      </div>
-      <div class="input-field">
-        <input type="password" required>
-        <label>Enter your password</label>
-      </div>
-      <div class="forget">
-        <label for="remember">
-          <input type="checkbox" id="remember">
-          <p>Remember me</p>
-        </label>
-        <a href="#">Forgot password?</a>
-      </div>
-      
-        <a href="file:///G:/Project%20(Contact%20management%20system)/Contact-Management-System-HTML-CSS-and-JS/index.html">LOGIN</a>
-    <!-- <button onclick="window.location.href='file:///G:/Project%20(Contact%20management%20system)/Contact-Management-System-HTML-CSS-and-JS/index.html'" class="login-button">
-      LOGIN
-  </button> -->
-      <div class="register">
-        <p>Don't have an account?   <a href="#"> Register</a></p>
-      </div>
-      </form>
+  <div class="container">
+    <h1>Contact Management System</h1>
+    <button onclick="openForm()">Add Contact</button>
+    <div id="contactList"></div>
   </div>
+
+  <div class="form-popup" id="contactForm">
+    <form id="addContactForm" action="/submit" method="post" onsubmit="saveContact(event)">
+
+      <h2>Add or Edit Contact</h2>
+      <label for="name">Name:</label>
+      <input type="text" id="name" required>
+      
+      <label for="contact">Phone:</label>
+      <input type="text" id="number" required>
+      <span id="phoneError" class="error"></span>
+
+      <label for="email">Email:</label>
+      <input type="email" placeholder="abc@gmail.com" id="email" >
+      <span id="emailError" class="error"></span>
+              
+      <button type="submit" id="one" onclick="saveContact()">Save</button>
+      <button type="submit" id="two" onclick="closeForm()">Close</button>
+    </form>
+  </div>
+   <script>
+    function openForm() {
+      document.getElementById("contactForm").style.display = "block";
+    }
+
+    function closeForm() {
+      document.getElementById("contactForm").style.display = "none";
+    }
+  </script> 
+  <script>
+  const apiUrl = 'http://localhost:3000/contacts';
+
+  document.addEventListener('DOMContentLoaded', () => {
+    fetchContacts();
+  });
+
+  function fetchContacts() {
+    fetch(apiUrl)
+      .then(response => response.json())
+      .then(data => {
+        contacts = data;
+        displayContacts();
+      });
+  }
+
+  function saveContact(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('name').value;
+    const number = document.getElementById('number').value;
+    const email = document.getElementById('email').value;
+    const phoneError = document.getElementById('phoneError');
+    const emailError = document.getElementById('emailError');
+    const phonePattern = /^\d{10}$/;
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!name) {
+      alert('Please enter a name.');
+      return;
+    }
+    if (!phonePattern.test(number)) {
+      phoneError.textContent = 'Please enter a valid phone number.';
+      return;
+    } else {
+      phoneError.textContent = '';
+    }
+    if (!emailPattern.test(email)) {
+      emailError.textContent = 'Please enter a valid email address.';
+      return;
+    } else {
+      emailError.textContent = '';
+    }
+
+    const contact = { name, number, email };
+
+    fetch(apiUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(contact),
+    })
+    .then(response => response.json())
+    .then(data => {
+      contacts.push(data);
+      displayContacts();
+      clearForm();
+      closeForm();
+    });
+  }
+
+  function displayContacts() {
+    const contactList = document.getElementById('contactList');
+    contactList.innerHTML = '';
+
+    contacts.forEach((contact, index) => {
+      const contactItem = document.createElement('div');
+      contactItem.className = 'contact-item saved-contact';
+      contactItem.innerHTML = `<strong>${contact.name}</strong> - ${contact.number} - ${contact.email}
+                               <button onclick="editContact(${index})">Edit</button>
+                               <button onclick="deleteContact('${contact._id}')">Delete</button>`;
+      contactList.appendChild(contactItem);
+    });
+  }
+
+  function editContact(index) {
+    const contact = contacts[index];
+    document.getElementById('name').value = contact.name;
+    document.getElementById('number').value = contact.number;
+    document.getElementById('email').value = contact.email;
+    contacts.splice(index, 1);
+    displayContacts();
+    openForm();
+  }
+
+  function deleteContact(id) {
+    fetch(`${apiUrl}/${id}`, {
+      method: 'DELETE',
+    })
+    .then(() => {
+      contacts = contacts.filter(contact => contact._id !== id);
+      displayContacts();
+    });
+  }
+
+  function clearForm() {
+    document.getElementById('name').value = '';
+    document.getElementById('number').value = '';
+    document.getElementById('email').value = '';
+  }
+
+  // Initial display
+  displayContacts();
+</script>
+
+  <script src="script.js"></script>
+</body>
+</html> -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Contact Management System</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <h1>Contact Management System</h1>
+    <button onclick="openForm()">Add Contact</button>
+    <div id="contactList"></div>
+  </div>
+
+  <div class="form-popup" id="contactForm">
+    <form id="addContactForm" onsubmit="saveContact(event)">
+      <h2>Add or Edit Contact</h2>
+      <label for="name">Name:</label>
+      <input type="text" id="name" required>
+      
+      <label for="contact">Phone:</label>
+      <input type="text" id="number" required>
+      <span id="phoneError" class="error"></span>
+
+      <label for="email">Email:</label>
+      <input type="email" placeholder="abc@gmail.com" id="email">
+      <span id="emailError" class="error"></span>
+              
+      <button type="submit">Save</button>
+      <button type="button" onclick="closeForm()">Close</button>
+    </form>
+  </div>
+
+  <script>
+    const apiUrl = 'http://localhost:3000/contacts';
+    let contacts = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchContacts();
+    });
+
+    function fetchContacts() {
+      fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          contacts = data;
+          displayContacts();
+        });
+    }
+
+    function saveContact(event) {
+      event.preventDefault();
+      
+      const name = document.getElementById('name').value;
+      const number = document.getElementById('number').value;
+      const email = document.getElementById('email').value;
+      const phoneError = document.getElementById('phoneError');
+      const emailError = document.getElementById('emailError');
+      const phonePattern = /^\d{10}$/;
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!name) {
+        alert('Please enter a name.');
+        return;
+      }
+      if (!phonePattern.test(number)) {
+        phoneError.textContent = 'Please enter a valid phone number.';
+        return;
+      } else {
+        phoneError.textContent = '';
+      }
+      if (!emailPattern.test(email)) {
+        emailError.textContent = 'Please enter a valid email address.';
+        return;
+      } else {
+        emailError.textContent = '';
+      }
+
+      const contact = { name, number, email };
+
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(contact),
+      })
+      .then(response => response.json())
+      .then(data => {
+        contacts.push(data);
+        displayContacts();
+        clearForm();
+        closeForm();
+      })
+      .catch(error => {
+        console.error('Error saving contact:', error);
+      });
+    }
+
+    function displayContacts() {
+      const contactList = document.getElementById('contactList');
+      contactList.innerHTML = '';
+
+      contacts.forEach((contact, index) => {
+        const contactItem = document.createElement('div');
+        contactItem.className = 'contact-item saved-contact';
+        contactItem.innerHTML = `<strong>${contact.name}</strong> - ${contact.number} - ${contact.email}
+                                 <button onclick="editContact(${index})">Edit</button>
+                                 <button onclick="deleteContact('${contact._id}')">Delete</button>`;
+        contactList.appendChild(contactItem);
+      });
+    }
+
+    function editContact(index) {
+      const contact = contacts[index];
+      document.getElementById('name').value = contact.name;
+      document.getElementById('number').value = contact.number;
+      document.getElementById('email').value = contact.email;
+      contacts.splice(index, 1);
+      displayContacts();
+      openForm();
+    }
+
+    function deleteContact(id) {
+      fetch(`${apiUrl}/${id}`, {
+        method: 'DELETE',
+      })
+      .then(() => {
+        contacts = contacts.filter(contact => contact._id !== id);
+        displayContacts();
+      });
+    }
+
+    function clearForm() {
+      document.getElementById('name').value = '';
+      document.getElementById('number').value = '';
+      document.getElementById('email').value = '';
+    }
+
+    function openForm() {
+      document.getElementById("contactForm").style.display = "block";
+    }
+
+    function closeForm() {
+      document.getElementById("contactForm").style.display = "none";
+    }
+
+    // Initial display
+    displayContacts();
+  </script>
+  
+  <script src="script.js"></script>
 </body>
 </html>
+
